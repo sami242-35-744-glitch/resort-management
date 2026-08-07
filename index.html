@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Luxe Resort - Management System</title>
+<link rel = "stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    
+<div class ="app-container">
+    <aside class = "sidebar">
+        <div class = "brand">
+        <i class = "fa-solid fa hotel logo-icon"></i>
+        <h2>Grand Luxe</h2>
+        </div>
+
+        <nav class="nav-menu">
+            <button class="nav-btn active" onclick="switchTab('dashboard', event)">
+                    <i class="fa-solid fa-chart-pie"></i> <span>ড্যাশবোর্ড</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('booking', event)">
+                    <i class="fa-solid fa-calendar-check"></i> <span>রুম বুকিং</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('frontdesk', event)">
+                    <i class="fa-solid fa-concierge-bell"></i> <span>ফ্রন্ট ডেস্ক</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('housekeeping', event)">
+                    <i class="fa-solid fa-broom"></i> <span>হাউস কিপিং</span>
+                </button>
+                <button class="nav-btn" onclick="switchTab('restaurant', event)">
+                    <i class="fa-solid fa-utensils"></i> <span>রেস্টুরেন্ট</span>
+                </button>
+            </nav>
+
+            <div class="user-profile">
+                <img src="https://ui-avatars.com/api/?name=Admin+Manager&background=0EA5E9&color=fff" alt="User Avatar">
+                <div class="user-info">
+                    <h4>Admin User</h4>
+                    <p>General Manager</p>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class = "top-header">
+           <h1 id="page-title">Resort Overview & Real-Time Analytics</h1>
+                    <p class="subtitle">Smart Operations & Occupancy Engine</p>
+                </div>
+                <div class="header-actions">
+                    <button class="lang-toggle" onclick="toggleLanguage()">
+                        <i class="fa-solid fa-globe"></i> <span id="lang-text">EN / বাংলা</span>
+                    </button>
+                </div>
+            </header> 
+        <div id ="alert-banner" class="alert hidden"></div>
+
+    <section id = "tab-dashboard" class="tab-content active">
+        <div class ="metrics-grid">
+         <div class ="metric-card glass" >
+
+            <i class=""fa-solid fa-bed icon blue"></i>
+            <div>
+                <h3>Total Rooms</h3>
+                <p id="metric-occupied-rooms">--</p>
+            </div>
+         </div> 
+          <div class="metric-card glass">
+                        <i class="fa-solid fa-user-check icon green"></i>
+                        <div>
+                            <h3>Occupied Rooms</h3>
+                            <p id="metric-occupied-rooms">--</p>
+                        </div>
+                    </div>
+                    <div class="metric-card glass">
+                        <i class="fa-solid fa-chart-line icon purple"></i>
+                        <div>
+                            <h3>Occupancy Rate</h3>
+                            <p id="metric-occupancy-rate">--</p>
+                        </div>
+                    </div>
+                    <div class="metric-card glass">
+                        <i class="fa-solid fa-sack-dollar icon gold"></i>
+                        <div>
+                            <h3>Total Revenue</h3>
+                            <p id="metric-revenue">--</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="table-container glass mt-24">
+                    <h2><i class="fa-solid fa-list-check"></i> Live Room Status Dashboard</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Room No</th>
+                                <th>Type</th>
+                                <th>Category</th>
+                                <th>Price / Night</th>
+                                <th>Occupancy Status</th>
+                                <th>Cleanliness Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dashboard-room-list">
+        
+                        </tbody>
+                    </table>
+                </div>
+            </section>                
+<section id="tab-booking" class="tab-content">
+<div class="grid-2">
+    <div class="card glass">
+                        <h2><i class="fa-solid fa-plus-circle"></i> Reserve A Room</h2>
+                        <form id="booking-form" onsubmit="handleBookingSubmit(event)">
+                            <div class="form-group">
+                                <label>Guest Full Name</label>
+                                <input type="text" id="guestName" placeholder="e.g., Mahfuzur Rahman" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Select Available Room</label>
+                                <select id="bookingRoomSelect" required>
+                                    <!-- Dynamic Options -->
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>Check-In Date</label>
+                                    <input type="date" id="checkIn" required>
+                                </div>
+                                <div class="form-group">
+                                    <label>Check-Out Date</label>
+                                    <input type="date" id="checkOut" required>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary mt-12"><i class="fa-solid fa-credit-card"></i> Pay & Confirm Reservation</button>
+                        </form>
+                    </div>
+
+                    <div class="card glass">
+                        <h2>System Features Checklist</h2>
+                        <ul class="feature-list">
+                            <li><i class="fa-solid fa-shield-check text-green"></i> Concurrency Lock (Prevents Double Booking)</li>
+                            <li><i class="fa-solid fa-bolt text-blue"></i> Real-time Database Synchronization</li>
+                            <li><i class="fa-solid fa-receipt text-purple"></i> Instant Invoice & Billing Generation</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <section id="tab-frontdesk" class="tab-content">
+                <div class="table-container glass">
+                    <h2><i class="fa-solid fa-concierge-bell"></i> Front Desk Operations</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Room #</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Operation Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="frontdesk-table">
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="tab-housekeeping" class="tab-content">
+                <div class="table-container glass">
+                    <h2><i class="fa-solid fa-broom"></i> Housekeeping & Maintenance Console</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Room #</th>
+                                <th>Room Type</th>
+                                <th>Cleanliness Status</th>
+                                <th>Change Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="housekeeping-table">
+                            <!-- Dynamic Rows -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="tab-restaurant" class="tab-content">
+                <div class="grid-2">
+                    <div class="card glass">
+                        <h2><i class="fa-solid fa-utensils"></i> Room Service Food Order</h2>
+                        <form id="restaurant-form" onsubmit="handleFoodOrder(event)">
+                            <div class="form-group">
+                                <label>Target Room Number</label>
+                                <input type="number" id="foodRoomNo" placeholder="e.g., 101" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Food & Beverage Items</label>
+                                <textarea id="foodItems" rows="3" placeholder="e.g., 1x Seafood Pasta, 2x Cold Coffee" required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Total Bill Amount (BDT)</label>
+                                <input type="number" id="foodTotal" placeholder="1250" required>
+                            </div>
+                            <button type="submit" class="btn btn-secondary mt-12"><i class="fa-solid fa-paper-plane"></i> Dispatch to Kitchen</button>
+                        </form>
+</div>
+</div>
+</section>
+    </main>
+</div>
+<script src="script.js"></script>
+</body>
+</html>
