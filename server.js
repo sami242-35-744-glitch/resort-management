@@ -10,6 +10,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(__dirname));
 
+app.get('/', (req, res) => {
+  res.send('Resort Management Server is Running!');
+});
+
 // ======================= MOCK DATABASE =======================
 let rooms = [
     { id: 101, type: "Single Deluxe", category: "Single", price: 3500, status: "Available", housekeeping: "Clean" },
