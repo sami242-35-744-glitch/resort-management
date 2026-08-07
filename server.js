@@ -8,10 +8,13 @@ const PORT = process.env.PORT || 3000;
 // Middlewares
 app.use(cors());
 app.use(express.json());
+
+// Static HTML, CSS, JS ফাইল সার্ভ করার জন্য
 app.use(express.static(__dirname));
 
+// Root route - এটি ব্রাউজারে index.html পেজটি ওপেন করবে
 app.get('/', (req, res) => {
-  res.send('Resort Management Server is Running!');
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // ======================= MOCK DATABASE =======================
@@ -143,10 +146,14 @@ app.get('/api/analytics', (req, res) => {
     });
 });
 
-// Start Server
-app.listen(PORT, () => {
-    console.log(`=======================================================`);
-    console.log(`Grand Luxe Resort Backend running at: http://localhost:${PORT}`);
-    console.log(`=======================================================`);
-    module.exports = app;
-});
+// Local Development-এর জন্য Listen করবে
+if (process.env.NODE_ENV !== 'production') {
+    app.listen(PORT, () => {
+        console.log(`=======================================================`);
+        console.log(`Grand Luxe Resort Backend running at: http://localhost:${PORT}`);
+        console.log(`=======================================================`);
+    });
+}
+
+// Vercel-এর জন্য Export করতে হবে
+module.exports = app;
