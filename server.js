@@ -203,4 +203,7 @@ app.listen(PORT, () => {
     console.log(`🏰 Grand Palace Server Running on Port ${PORT}`);
     console.log(`👉 Access URL: http://localhost:${PORT}`);
     console.log(`===========================================`);
+    
 });
+
+module.exports = app;
