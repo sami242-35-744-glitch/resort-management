@@ -8,7 +8,9 @@ const PORT = process.env.PORT || 5000;
 // Middleware
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// ১. রুট ফোল্ডার (Root Directory) থেকে সরাসরি static ফাইল (index.html, style.css, script.js) লোড করার জন্য
+app.use(express.static(__dirname));
 
 // ==========================================
 // IN-MEMORY DATABASE
@@ -127,6 +129,11 @@ app.post('/api/bookings', (req, res) => {
     if (room) room.status = 'occupied';
 
     res.json({ success: true, booking: newBooking });
+});
+
+// ২. মূল ওয়েবসাইটে ঢুকলে index.html পেজটি দেখানোর জন্য
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Server Listen / Vercel Export
