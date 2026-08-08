@@ -3,157 +3,137 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5000;
 
-// Middlewares
+// Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Static HTML, CSS, JS ফাইল সার্ভ করার জন্য
-app.use(express.static(__dirname));
-
-// Root route - এটি ব্রাউজারে index.html পেজটি ওপেন করবে
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// ======================= MOCK DATABASE =======================
-let rooms = [
-    { id: 101, type: "Single Deluxe", category: "Single", price: 3500, status: "Available", housekeeping: "Clean" },
-    { id: 102, type: "Executive Double", category: "Double", price: 5500, status: "Occupied", housekeeping: "Clean" },
-    { id: 201, type: "Royal Ocean Suite", category: "Suite", price: 12000, status: "Available", housekeeping: "Dirty" },
-    { id: 202, type: "Luxury Garden Cottage", category: "Cottage", price: 8500, status: "Available", housekeeping: "Clean" },
-    { id: 301, type: "Presidential Villa", category: "Villa", price: 25000, status: "Maintenance", housekeeping: "Under Repair" }
+// ==========================================
+// IN-MEMORY DATABASE
+// ==========================================
+let roomList = [
+    { id: "101", title: "Single Standard Room", price: 800, status: "available", img: "https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=500", desc: "Cozy room with free Wi-Fi and king bed." },
+    { id: "102", title: "Single Executive Room", price: 1000, status: "occupied", img: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=500", desc: "Executive workspace & smart TV." },
+    { id: "201", title: "Deluxe Double Room", price: 5000, status: "dirty", img: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=500", desc: "Spacious luxury room designed for couples." },
+    { id: "202", title: "Super Deluxe Double Room", price: 7500, status: "available", img: "https://images.unsplash.com/photo-1590490360182-c33d57733427?w=500", desc: "Balcony access and complimentary breakfast." },
+    { id: "301", title: "Executive Double Ocean View", price: 10000, status: "maintenance", img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500", desc: "Panoramic view with luxury ocean deck." },
+    { id: "401", title: "Royal Family Suite", price: 20000, status: "occupied", img: "https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=500", desc: "Multi-bedroom suite for families." },
+    { id: "501", title: "Presidential VIP Suite", price: 35000, status: "available", img: "https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=500", desc: "VIP suite with private lounge." },
+    { id: "601", title: "Royal Palace Villa", price: 50000, status: "available", img: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=500", desc: "Private villa with infinity pool." }
 ];
 
 let bookings = [
-    { id: "BK-1001", guestName: "Tanvir Ahmed", roomNumber: 102, checkIn: "2026-08-05", checkOut: "2026-08-08", totalAmount: 16500, status: "Checked-In", paymentStatus: "Paid" }
+    {
+        id: "GP-8801",
+        guestName: "Arif Chowdhury",
+        guestEmail: "arif@example.com",
+        guestPhone: "+8801711112233",
+        roomNumber: "401",
+        roomType: "Royal Family Suite",
+        checkIn: "2026-08-01",
+        checkOut: "2026-08-05",
+        totalBill: 80000,
+        status: "Confirmed",
+        avatar: "https://ui-avatars.com/api/?name=Arif+Chowdhury&background=c5a880&color=fff"
+    }
 ];
 
-let orders = [
-    { id: "ORD-501", roomNumber: 102, items: "Club Sandwich, Fresh Mango Juice", total: 850, status: "Delivered" }
+let guests = [
+    { id: "G-101", name: "Arif Chowdhury", email: "arif@example.com", phone: "+8801711112233" }
 ];
 
-// ======================= REST API ENDPOINTS =======================
+// ==========================================
+// API ROUTES
+// ==========================================
 
-// 1. Get All Rooms
-app.get('/api/rooms', (req, res) => {
-    res.json({ success: true, data: rooms });
+// Login API
+app.post('/api/login', (req, res) => {
+    const { email, password } = req.body;
+    if (email.toLowerCase() === 'admin@grandpalace.com' && password === 'admin123') {
+        res.json({
+            success: true,
+            user: {
+                role: 'ADMINISTRATOR',
+                name: 'MD. EMTIAZ HOSSAIN SAMI',
+                email: email,
+                phone: '+8801700000000',
+                avatar: 'Md. EmTIAZ hOSSAIN sAMI LOGO.png'
+            }
+        });
+    } else {
+        res.status(401).json({ success: false, message: 'Invalid Credentials' });
+    }
 });
 
-// 2. Create Booking (With Concurrency Lock to Prevent Double Booking)
-app.post('/api/bookings', (req, res) => {
-    const { guestName, roomId, checkIn, checkOut } = req.body;
+// GET Data
+app.get('/api/rooms', (req, res) => res.json(roomList));
+app.get('/api/bookings', (req, res) => res.json(bookings));
+app.get('/api/guests', (req, res) => res.json(guests));
 
-    const room = rooms.find(r => r.id === parseInt(roomId));
+// Add Room
+app.post('/api/rooms', (req, res) => {
+    const newRoom = req.body;
+    roomList.push(newRoom);
+    res.json({ success: true, room: newRoom });
+});
 
-    if (!room) {
-        return res.status(404).json({ success: false, message: "Room not found!" });
+// Update Room Price
+app.patch('/api/rooms/:id/price', (req, res) => {
+    const { id } = req.params;
+    const { price } = req.body;
+    const room = roomList.find(r => r.id === id);
+    if (room) {
+        room.price = price;
+        res.json({ success: true, room });
+    } else {
+        res.status(404).json({ success: false, message: 'Room not found' });
     }
+});
 
-    // CONCURRENCY CONTROL CHECK
-    if (room.status === "Occupied" || room.status === "Booked") {
-        return res.status(400).json({ 
-            success: false, 
-            message: `Double Booking Error: Room ${room.id} is already occupied or booked!` 
+// Toggle / Change Room Status
+app.patch('/api/rooms/:id/status', (req, res) => {
+    const { id } = req.params;
+    const room = roomList.find(r => r.id === id);
+    if (room) {
+        const statuses = ['available', 'occupied', 'dirty', 'maintenance'];
+        const idx = statuses.indexOf(room.status);
+        room.status = statuses[(idx + 1) % statuses.length];
+        res.json({ success: true, room });
+    } else {
+        res.status(404).json({ success: false, message: 'Room not found' });
+    }
+});
+
+// Create Booking
+app.post('/api/bookings', (req, res) => {
+    const newBooking = req.body;
+    bookings.unshift(newBooking);
+
+    // Sync Guest
+    const existingGuest = guests.find(g => (newBooking.guestEmail && g.email === newBooking.guestEmail) || (newBooking.guestPhone && g.phone === newBooking.guestPhone));
+    if (!existingGuest) {
+        guests.unshift({
+            id: 'G-' + Math.floor(100 + Math.random() * 900),
+            name: newBooking.guestName,
+            email: newBooking.guestEmail,
+            phone: newBooking.guestPhone
         });
     }
 
-    // Lock the room status
-    room.status = "Booked";
+    // Update Room Status to Occupied
+    const room = roomList.find(r => r.id === newBooking.roomNumber);
+    if (room) room.status = 'occupied';
 
-    const newBooking = {
-        id: `BK-${Math.floor(1000 + Math.random() * 9000)}`,
-        guestName,
-        roomNumber: room.id,
-        checkIn,
-        checkOut,
-        totalAmount: room.price * 2, // Fixed 2-night calculation sample
-        status: "Confirmed",
-        paymentStatus: "Paid"
-    };
-
-    bookings.push(newBooking);
-
-    res.status(201).json({
-        success: true,
-        message: "Booking successfully confirmed!",
-        booking: newBooking
-    });
+    res.json({ success: true, booking: newBooking });
 });
 
-// 3. Front Desk Check-in / Check-out Operations
-app.post('/api/frontdesk/action', (req, res) => {
-    const { roomId, action } = req.body;
-    const room = rooms.find(r => r.id === parseInt(roomId));
-
-    if (!room) return res.status(404).json({ success: false, message: "Room not found" });
-
-    if (action === "check-in") {
-        room.status = "Occupied";
-    } else if (action === "check-out") {
-        room.status = "Available";
-        room.housekeeping = "Dirty"; // Automatically requires cleaning after check-out
-    }
-
-    res.json({ success: true, message: `Room ${roomId} ${action} completed successfully!`, room });
-});
-
-// 4. Housekeeping Status Update
-app.post('/api/housekeeping/update', (req, res) => {
-    const { roomId, status } = req.body;
-    const room = rooms.find(r => r.id === parseInt(roomId));
-
-    if (!room) return res.status(404).json({ success: false, message: "Room not found" });
-
-    room.housekeeping = status;
-    res.json({ success: true, message: `Housekeeping status updated to ${status}`, room });
-});
-
-// 5. Room Service Food Order API
-app.post('/api/restaurant/order', (req, res) => {
-    const { roomNumber, items, total } = req.body;
-    const newOrder = {
-        id: `ORD-${Math.floor(100 + Math.random() * 900)}`,
-        roomNumber: parseInt(roomNumber),
-        items,
-        total: parseFloat(total),
-        status: "Preparing"
-    };
-    orders.push(newOrder);
-    res.status(201).json({ success: true, message: "Food order sent to kitchen!", order: newOrder });
-});
-
-// 6. Analytics Engine (Real-Time Metrics)
-app.get('/api/analytics', (req, res) => {
-    const totalRooms = rooms.length;
-    const occupiedRooms = rooms.filter(r => r.status === "Occupied" || r.status === "Booked").length;
-    const occupancyRate = ((occupiedRooms / totalRooms) * 100).toFixed(1);
-    
-    const roomRevenue = bookings.reduce((sum, b) => sum + b.totalAmount, 0);
-    const diningRevenue = orders.reduce((sum, o) => sum + o.total, 0);
-    const totalRevenue = roomRevenue + diningRevenue;
-
-    res.json({
-        success: true,
-        analytics: {
-            totalRooms,
-            occupiedRooms,
-            occupancyRate: `${occupancyRate}%`,
-            totalRevenue: `BDT ${totalRevenue.toLocaleString()}`,
-            activeOrders: orders.length
-        }
-    });
-});
-
-// Local Development-এর জন্য Listen করবে
+// Server Listen / Vercel Export
 if (process.env.NODE_ENV !== 'production') {
     app.listen(PORT, () => {
-        console.log(`=======================================================`);
-        console.log(`Grand Luxe Resort Backend running at: http://localhost:${PORT}`);
-        console.log(`=======================================================`);
+        console.log(`🚀 Node.js Server running on port ${PORT}`);
     });
 }
 
-// Vercel-এর জন্য Export করতে হবে
 module.exports = app;
